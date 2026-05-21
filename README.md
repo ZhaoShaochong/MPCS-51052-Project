@@ -41,20 +41,6 @@ uv run pytest
 
 ---
 
-## Requirement checklist (`Requirement.md`)
-
-| ID   | Requirement | How this repo satisfies it |
-|------|-------------|----------------------------|
-| **R1** | Complete Python app; `git clone` + `uv run` with minimal steps; layout + **ruff** | Standard `pyproject.toml` + `organizer/` package; `uv sync` then `uv run organizer`; `ruff` configured with **no per-file ignores** except Typer’s `Option(...)` defaults in `cli.py` (`B008`, unavoidable Typer idiom). |
-| **R2** | Well-tested | `tests/` covers DSL parsing, condition evaluation, rule priority / dry-run, file move/rename, JSON round-trip (`pytest`). |
-| **R3** | Typed + type checker | Annotations throughout `organizer/`; `mypy` strict on the package with minimal third-party `ignore_missing_imports` overrides. |
-| **R4** | README + **image/video** + architecture & code docs | This file + `docs/architecture.png`; architecture sections below + **module map**. |
-| **R5** | Non-trivial “advanced” feature | **DSL** (grammar + AST-style conditions) **and** **asyncio** pipeline (`watch_loop` + queue fed from watchdog thread). |
-| **R6** | Correct, Pythonic, efficient | Small focused modules; filesystem work is O(files) for `run`; watcher uses an event queue instead of polling. |
-| **R7** | Novel / interesting | Composable mini-language + safe executor + hybrid threaded FS events → async processing is a coherent “organizer” story rather than a thin script. |
-
----
-
 ## Architecture
 
 ### Conceptual diagram (Mermaid)
