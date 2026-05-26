@@ -55,7 +55,16 @@ warn_unused_ignores = true
 show_error_codes = true
 
 [[tool.mypy.overrides]]
-module = ["lark.*", "watchdog.*", "watchdog.events", "typer.*", "rich.*", "click.*"]
+module = [
+    "lark.*",
+    "watchdog.*",
+    "watchdog.events",
+    "typer.*",
+    "rich.*",
+    "click.*",
+    "tkinter.*",
+    "_tkinter",
+]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

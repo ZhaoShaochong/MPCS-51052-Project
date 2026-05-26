@@ -29,6 +29,14 @@ Watch mode (applies rules when new files appear):
 uv run organizer watch --path ~/Downloads
 ```
 
+Graphical UI (no DSL rules required — pick source/output folders and file types):
+
+```bash
+uv run organizer gui
+```
+
+Enabled types are moved into subfolders under the output folder (e.g. `PDF/`, `Images/`). If you leave **Output folder** empty, files go to `<source>/Organized/`.
+
 Developer checks (lint, types, tests):
 
 ```bash
@@ -88,7 +96,11 @@ flowchart LR
 
 | Module | Role |
 |--------|------|
-| `organizer/cli.py` | Typer entrypoints: `run`, `watch`, `rules` subcommands. |
+| `organizer/cli.py` | Typer entrypoints: `run`, `watch`, `gui`, `rules` subcommands. |
+| `organizer/gui.py` | Tkinter UI: source/output folders + file-type toggles. |
+| `organizer/file_types.py` | Preset extension groups and output subfolder names. |
+| `organizer/ui_rules.py` | Builds move rules from GUI type selections. |
+| `organizer/scan.py` | Shared directory scan used by CLI and GUI. |
 | `organizer/dsl_parser.py` | Lark grammar + `RuleParser.parse` → `Rule`. |
 | `organizer/condition_evaluator.py` | Pure evaluation of `Condition` on `FileEvent`. |
 | `organizer/rule_engine.py` | Ordering + `match` / `apply_first` (supports `--dry-run`). |

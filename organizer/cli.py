@@ -9,9 +9,10 @@ import typer
 from lark.exceptions import LarkError
 from rich.console import Console
 
-from organizer.models import FileEvent
+from organizer.models import FileEvent, Rule
 from organizer.rule_engine import RuleEngine
 from organizer.rule_manager import RuleManager
+from organizer.scan import scan_directory
 from organizer.scheduler import watch_loop
 
 app = typer.Typer(help="Smart File Organizer — rule-driven cleanup with a small DSL.")
@@ -43,18 +44,11 @@ def run(
         _console.print("[yellow]No rules configured.[/] Use [cyan]organizer rules add[/].")
         raise typer.Exit(code=0)
     _console.print("[bold]Applying rules...[/]")
-    for child in sorted(path.iterdir(), key=lambda p: p.name.lower()):
-        if not child.is_file():
-            continue
-        try:
-            fe = FileEvent.from_path(child)
-        except OSError as exc:
-            _console.print(f"[red]Skip {child.name}:[/] {exc}")
-            continue
-        hit = engine.apply_first(fe, rules, dry_run=dry_run)
-        if hit is None:
-            continue
-        rule, new_path = hit
+
+    def on_skip(child: Path, exc: OSError) -> None:
+        _console.print(f"[red]Skip {child.name}:[/] {exc}")
+
+    def on_result(fe: FileEvent, rule: Rule, new_path: Path | None) -> None:
         if dry_run:
             _console.print(f"[yellow]Would apply[/] {rule.raw_text!r} on [cyan]{fe.name}[/]")
         elif rule.action_kind.value == "move" and new_path is not None:
@@ -63,6 +57,15 @@ def run(
             _console.print(f"Renamed: [cyan]{fe.name}[/] -> [green]{new_path.name}[/]")
         else:
             _console.print(f"Applied: [cyan]{fe.name}[/]")
+
+    scan_directory(
+        path,
+        rules,
+        engine,
+        dry_run=dry_run,
+        on_skip=on_skip,
+        on_result=on_result,
+    )
 
 
 @app.command()
@@ -125,6 +128,14 @@ def rules_remove(
     manager = RuleManager()
     manager.remove_rule(index - 1)
     _console.print("[green]Rule deleted.[/]")
+
+
+@app.command()
+def gui() -> None:
+    """Open a graphical UI to pick a folder and file types."""
+    from organizer.gui import run_gui
+
+    run_gui()
 
 
 def main() -> None:
